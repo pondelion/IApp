@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 
 
-class Storage(metaclass=ABCMeta):
+class DB(metaclass=ABCMeta):
 
     @abstractmethod
     def save(self, **kwargs):
@@ -22,5 +22,6 @@ class Storage(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class StorageType(Enum):
-    S3 = 's3'
+class DBType(Enum):
+    AMAZON_RDS = 'amazon_rds'
+    DYNAMO_DB = 'dynamo_db'

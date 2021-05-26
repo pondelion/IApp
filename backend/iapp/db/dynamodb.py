@@ -1,13 +1,13 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from boto3.dynamodb.conditions import Key
 
 from ..aws.resource_provider import DYNAMO_DB
 from ..utils.logger import Logger
-from .storage import Storage
+from .db import DB, DBType
 
 
-class DynamoDB(Storage):
+class DynamoDB(DB):
 
     def __init__(self, table_name: str):
         self._table_name = table_name
@@ -19,7 +19,7 @@ class DynamoDB(Storage):
 
     def save(
         self,
-        items: List[Dict],
+        items: Union[Dict, List[Dict]],
         use_batch_writer: bool = False,
     ) -> List:
         if not isinstance(items, list):
@@ -92,3 +92,7 @@ class DynamoDB(Storage):
     def get_list(self) -> List[Dict]:
          # scan
          raise NotImplementedError
+
+    @property
+    def type(self):
+        return DBType.DYNAMO_DB

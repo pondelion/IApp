@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from .storage import Storage
+from .storage import Storage, StorageType
 from ..aws.resource import S3 as S3_resource
 from ..utils.config import AWSConfig
 
@@ -74,4 +74,6 @@ class S3(Storage):
 
         return s3_filelist
 
-
+    @property
+    def type(self):
+        return StorageType.S3
