@@ -35,3 +35,20 @@ class UserTweetCrawler(BaseCrawler):
             except Exception as e:
                 self._on_failed(e, kwargs)
         return self._on_completed(data=all_tweets, kwargs=kwargs)
+
+
+class UserInfoCrawler(BaseCrawler):
+
+    def _crawl(
+        self,
+        screen_name: str,
+    ) -> Any:
+        kwargs = {
+            'screen_name': screen_name
+        }
+        try:
+            user_info = TWEEPY_API.get_user(screen_name)
+        except Exception as e:
+            self._on_failed(e, kwargs)
+            return
+        return self._on_completed(data=user_info, kwargs=kwargs)
