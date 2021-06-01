@@ -11,27 +11,27 @@ import './App.css';
 
 function App() {
 
-  const [signedIn, setSignedIn] = React.useState<boolean|null>(null)
+  const [signedIn, setSignedIn] = React.useState<boolean|null>(null);
+  const [signedInUserName, setSignedInUserName] = React.useState<string>("");
 
   useEffect(() => {
     const cognitoUser = userPool.getCurrentUser()
     if (cognitoUser) {  // Already signed in.
       setSignedIn(true);
+      setSignedInUserName(cognitoUser.getUsername());
       console.log('signed in');
     } else {
       setSignedIn(false);
-      console.log('no user signing in')
+      setSignedInUserName("");
+      console.log('no user signing in');
     }
   }, [])
 
   const signedInContents = () => {
     return (
       <div className="authorizedMode">
-        <h1>You're now signed in.</h1>
-        <TwitterUserSummary
-          onSearchButtonClick={() => {}}
-          onSearchTextChange={() => {}}
-        />
+        <h3>You're now signed in as {signedInUserName}.</h3>
+        <TwitterUserSummary />
       </div>
     )
   }
@@ -39,7 +39,10 @@ function App() {
   const signedOutContents = () => {
     return (
       <div className="unauthorizedMode">
-        <SignIn setSignedIn={setSignedIn} />
+        <SignIn
+          setSignedIn={setSignedIn}
+          setSignedInUserName={setSignedInUserName}
+        />
       </div>
     )
   }
@@ -60,7 +63,12 @@ function App() {
   return (
     <div className="App">
       <MuiThemeProvider theme={appTheme}>
-        <Header signedIn={signedIn} setSignedIn={setSignedIn}/>
+        <Header
+          signedIn={signedIn}
+          setSignedIn={setSignedIn}
+          signedInUserName={signedInUserName}
+          setSignedInUserName={setSignedInUserName}
+        />
         { contents() }
       </MuiThemeProvider>
     </div>

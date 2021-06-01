@@ -13,9 +13,9 @@ const TwitterUserSearchTextBox: React.FC<SearchTextBoxProps> = (props: SearchTex
       required
       fullWidth
       id="username"
-      label="User Name"
+      label="User Name | Screen Name"
       name="username"
-      autoComplete="User Name"
+      autoComplete="User Name | Screen Name"
       onChange={props.onSearchTextChange}
     />
   )

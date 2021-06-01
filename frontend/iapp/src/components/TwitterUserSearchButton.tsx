@@ -22,7 +22,7 @@ const TwitterUserSearchButton: React.FC<SearchButtonProps> = (props: SearchButto
       startIcon={<SearchIcon />}
       style={{textTransform: 'none', color: 'white'}}
     >
-      Search Tweet
+      Search Tweet & Analyze
     </Button>
   )
 

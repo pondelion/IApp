@@ -30,7 +30,7 @@ class BaseCrawler(metaclass=ABCMeta):
             self._thread.start()
             return self._thread
         else:
-            return self._crawl(callback=None)
+            return self._crawl(**kwargs)
 
     @abstractmethod
     def _crawl(

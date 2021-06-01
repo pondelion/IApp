@@ -4,7 +4,6 @@ import TextField from '@material-ui/core/TextField'
 import Container from '@material-ui/core/Container'
 import Paper from '@material-ui/core/Paper';
 import {
-  CognitoUserPool,
   CognitoUser,
   AuthenticationDetails
 } from 'amazon-cognito-identity-js'
@@ -13,7 +12,8 @@ import { userPool } from '../aws/Cognito';
 
 
 type Props = {
-  setSignedIn: React.Dispatch<React.SetStateAction<boolean|null>>;
+  setSignedIn: React.Dispatch<React.SetStateAction<boolean|null>>,
+  setSignedInUserName: React.Dispatch<React.SetStateAction<string>>,
 }
 
 const SignIn: React.FC<Props> = (props: Props) => {
@@ -42,6 +42,7 @@ const SignIn: React.FC<Props> = (props: Props) => {
         setPassword('')
         setErrMsg('')
         props.setSignedIn(true)
+        props.setSignedInUserName(username)
       },
       onFailure: (err) => {
         console.error(err)

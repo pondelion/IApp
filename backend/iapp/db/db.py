@@ -2,6 +2,11 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 
 
+class DBType(Enum):
+    AMAZON_RDS = 'amazon_rds'
+    DYNAMO_DB = 'dynamo_db'
+
+
 class DB(metaclass=ABCMeta):
 
     @abstractmethod
@@ -18,10 +23,5 @@ class DB(metaclass=ABCMeta):
 
     @abstractmethod
     @property
-    def type(self):
+    def type(self) -> DBType:
         raise NotImplementedError
-
-
-class DBType(Enum):
-    AMAZON_RDS = 'amazon_rds'
-    DYNAMO_DB = 'dynamo_db'

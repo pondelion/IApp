@@ -5,6 +5,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import RawTweetList from './RawTweetList';
 
 
 interface TabPanelProps {
@@ -47,9 +48,20 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const TwitterUserSummaryTab: React.FC = () => {
+export type TwitterUserSummaryTabProps = {
+  tweets: any
+}
+
+const TwitterUserSummaryTab: React.FC<TwitterUserSummaryTabProps> = (props: TwitterUserSummaryTabProps) => {
+
+  // const tweetData = [
+  //   { id: 1, datetime: '2021-05-31 10:00', tweet: 'tweet1' },
+  //   { id: 2, datetime: '2021-05-31 11:00', tweet: 'tweet2' },
+  //   { id: 3, datetime: '2021-05-31 12:00', tweet: 'tweet3' },
+  // ]
 
   const [selectedTab, setSelectedTab] = React.useState(0);
+  // const [tweets, setTweets] = React.useState(tweetData);
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
@@ -64,7 +76,10 @@ const TwitterUserSummaryTab: React.FC = () => {
         </Tabs>
       </AppBar>
       <TabPanel value={selectedTab} index={0}>
-        <div />a
+        <RawTweetList
+          tweets={props.tweets}
+          onRowClick={(params, event) => console.log(params)}
+        />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
         <div />i

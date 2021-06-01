@@ -51,4 +51,4 @@ class UserInfoCrawler(BaseCrawler):
         except Exception as e:
             self._on_failed(e, kwargs)
             return
-        return self._on_completed(data=user_info, kwargs=kwargs)
+        return self._on_completed(data=user_info._json, kwargs=kwargs)

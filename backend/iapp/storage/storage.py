@@ -2,6 +2,10 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 
 
+class StorageType(Enum):
+    S3 = 's3'
+
+
 class Storage(metaclass=ABCMeta):
 
     @abstractmethod
@@ -18,9 +22,5 @@ class Storage(metaclass=ABCMeta):
 
     @abstractmethod
     @property
-    def type(self):
+    def type(self) -> StorageType:
         raise NotImplementedError
-
-
-class StorageType(Enum):
-    S3 = 's3'

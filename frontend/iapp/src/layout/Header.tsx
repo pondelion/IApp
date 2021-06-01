@@ -19,12 +19,17 @@ const useStyles = makeStyles((theme: Theme) =>
     title: {
       flexGrow: 1,
     },
+    userName: {
+      color: "#000000",
+    },
   }),
 );
 
 type Props = {
   signedIn: boolean | null,
-  setSignedIn: React.Dispatch<React.SetStateAction<boolean|null>>
+  setSignedIn: React.Dispatch<React.SetStateAction<boolean|null>>,
+  signedInUserName: string,
+  setSignedInUserName: React.Dispatch<React.SetStateAction<string>>,
 }
 
 const Header: React.FC<Props> = (props: Props) => {
@@ -37,6 +42,7 @@ const Header: React.FC<Props> = (props: Props) => {
       localStorage.clear()
       console.log('signed out')
       props.setSignedIn(false)
+      props.setSignedInUserName("")
     } else {
       localStorage.clear()
       console.log('no user signing in')
@@ -52,6 +58,9 @@ const Header: React.FC<Props> = (props: Props) => {
           </IconButton>
           <Typography variant="h6" className={classes.title}>
             IApp
+          </Typography>
+          <Typography className={classes.userName}>
+            { props.signedInUserName }
           </Typography>
           <Button
             color="inherit"

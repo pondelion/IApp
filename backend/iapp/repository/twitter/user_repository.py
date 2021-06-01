@@ -7,26 +7,24 @@ from ...storage import Storage, StorageType
 from ...db import DB, DBType
 
 
-class TweetRepository(Repository):
+class UserRepository(Repository):
 
     def __init__(
         self,
         storage: Storage = None,
         db: DB = None,
-        media_storage: Storage = None,
     ):
         super().__init__(storage, db)
-        self._media_storage = media_storage
 
     def _save_storage(
-        self, data: Union[Tweet, List[Tweet]],
+        self, data: Union[TwitterUser, List[TwitterUser]],
         filepath: str
     ) -> None:
         raise NotImplementedError("""
             Storage saving is not supported for tweet data.
         """)
 
-    def _save_db(self, data: Union[Tweet, List[Tweet]]) -> None:
+    def _save_db(self, data: Union[TwitterUser, List[TwitterUser]]) -> None:
         if not isinstance(data, list):
             data = [data]
         json_data = [d.json() for d in data]
@@ -38,4 +36,4 @@ class TweetRepository(Repository):
 
     @overrides
     def _supported_db_types(self) -> List[DBType]:
-        return []
+        return [DBType.DYNAMO_DB]
