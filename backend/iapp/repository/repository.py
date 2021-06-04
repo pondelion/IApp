@@ -28,6 +28,10 @@ class Repository(metaclass=ABCMeta):
             self._save_db(data)
 
     @abstractmethod
+    def find(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
     def _save_storage(self, data, filepath: str) -> None:
         raise NotImplementedError
 

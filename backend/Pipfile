@@ -8,6 +8,7 @@ fastapi = "*"
 uvicorn = "*"
 iapp = {editable = true, path = "."}
 boto3 = "*"
+fastapi-cloudauth = "*"
 
 [dev-packages]
 pytest = "*"
