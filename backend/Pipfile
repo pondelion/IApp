@@ -9,6 +9,15 @@ uvicorn = "*"
 iapp = {editable = true, path = "."}
 boto3 = "*"
 fastapi-cloudauth = "*"
+sqlalchemy = "*"
+mysqlclient = "*"
+sqlalchemy-utils = "*"
+pandas = "*"
+pandas-datareader = "*"
+yfinance = "*"
+timeout-decorator = "*"
+pytrends = "*"
+schedule = "*"
 
 [dev-packages]
 pytest = "*"

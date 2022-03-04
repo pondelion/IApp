@@ -3,7 +3,6 @@ from requests_oauthlib import OAuth1Session
 
 from ...utils.config import TwitterConfig
 
-
 _tweepy_auth = tweepy.OAuthHandler(
     TwitterConfig.CONSUMER_KEY,
     TwitterConfig.CONSUMER_SECRET

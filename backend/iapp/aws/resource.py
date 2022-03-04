@@ -14,5 +14,5 @@ except Exception as e:
     Logger.e(__file__, e)
     _aws_session = boto3.session.Session()
 
-DYNAMO_DB = _aws_session.resource('dynamodb')
-S3 = _aws_session.resource('s3')
+DYNAMO_DB = _aws_session.resource('dynamodb', endpoint_url=AWSConfig.ENDPOINT_URL)
+S3 = _aws_session.resource('s3', endpoint_url=AWSConfig.ENDPOINT_URL)

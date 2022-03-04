@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="iapp" schema="iapp" type="MySQL - 8.0.28">
+   <tables>
+      <table catalog="iapp" name="twitterfollowee" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="user_id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
+            <parent catalog="iapp" column="id" foreignKey="twitterfollowee_ibfk_1" implied="false" onDeleteCascade="false" table="twitteruser"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="followee_id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
+            <parent catalog="iapp" column="id" foreignKey="twitterfollowee_ibfk_2" implied="false" onDeleteCascade="false" table="twitteruser"/>
+         </column>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="3" name="created_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="4" name="updated_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="followee_id" unique="false">
+            <column ascending="true" name="followee_id"/>
+         </index>
+         <index name="ix_twitterfollowee_id" unique="false">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="user_id" unique="false">
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table catalog="iapp" name="twitterfollower" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="user_id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
+            <parent catalog="iapp" column="id" foreignKey="twitterfollower_ibfk_1" implied="false" onDeleteCascade="false" table="twitteruser"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="follower_id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
+            <parent catalog="iapp" column="id" foreignKey="twitterfollower_ibfk_2" implied="false" onDeleteCascade="false" table="twitteruser"/>
+         </column>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="3" name="created_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="4" name="updated_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="follower_id" unique="false">
+            <column ascending="true" name="follower_id"/>
+         </index>
+         <index name="ix_twitterfollower_id" unique="false">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="user_id" unique="false">
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table catalog="iapp" name="twittermediafile" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="tweet_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="iapp" column="id" foreignKey="twittermediafile_ibfk_1" implied="false" onDeleteCascade="false" table="twittertweet"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="media_url" nullable="false" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="media_s3_url" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="media_type" nullable="false" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="5" name="created_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="6" name="updated_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ix_twittermediafile_id" unique="false">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="tweet_id" unique="false">
+            <column ascending="true" name="tweet_id"/>
+         </index>
+      </table>
+      <table catalog="iapp" name="twittertweet" numRows="20" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <child catalog="iapp" column="tweet_id" foreignKey="twittermediafile_ibfk_1" implied="false" onDeleteCascade="false" table="twittermediafile"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="tweet_created_at" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="text" nullable="false" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="retweet_count" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="favorite_count" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="lang" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="user_id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
+            <parent catalog="iapp" column="id" foreignKey="twittertweet_ibfk_1" implied="false" onDeleteCascade="false" table="twitteruser"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="has_media_files" nullable="false" remarks="" size="1" type="BIT" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="in_reply_to_user_id" nullable="true" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="in_reply_to_screen_name" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="10" name="created_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="11" name="updated_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ix_twittertweet_id" unique="false">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="user_id" unique="false">
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table catalog="iapp" name="twitteruser" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
+            <child catalog="iapp" column="followee_id" foreignKey="twitterfollowee_ibfk_2" implied="false" onDeleteCascade="false" table="twitterfollowee"/>
+            <child catalog="iapp" column="user_id" foreignKey="twitterfollowee_ibfk_1" implied="false" onDeleteCascade="false" table="twitterfollowee"/>
+            <child catalog="iapp" column="follower_id" foreignKey="twitterfollower_ibfk_2" implied="false" onDeleteCascade="false" table="twitterfollower"/>
+            <child catalog="iapp" column="user_id" foreignKey="twitterfollower_ibfk_1" implied="false" onDeleteCascade="false" table="twitterfollower"/>
+            <child catalog="iapp" column="user_id" foreignKey="twittertweet_ibfk_1" implied="false" onDeleteCascade="false" table="twittertweet"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="name" nullable="false" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="screen_name" nullable="false" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="account_created_at" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="profile_image_url" nullable="false" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="followers_count" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="friends_count" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="protected" nullable="false" remarks="" size="1" type="BIT" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="geo_enabled" nullable="false" remarks="" size="1" type="BIT" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="description" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="location" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="time_zone" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="lang" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="last_tweet_id" nullable="true" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="14" name="created_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP(6)" digits="0" id="15" name="updated_at" nullable="true" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ix_twitteruser_id" unique="false">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+   </tables>
+</database>

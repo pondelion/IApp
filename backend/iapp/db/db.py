@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 
+from .rdb import init_rdb
+
 
 class DBType(Enum):
     AMAZON_RDS = 'amazon_rds'
@@ -21,7 +23,15 @@ class DB(metaclass=ABCMeta):
     def get_list(self, **kwargs):
         raise NotImplementedError
 
-    @abstractmethod
     @property
+    @abstractmethod
     def type(self) -> DBType:
         raise NotImplementedError
+
+
+def init_db() -> None:
+    init_rdb()
+
+
+def delete_all_tables() -> None:
+    pass

@@ -38,7 +38,7 @@ class S3(Storage):
 
         return local_filepath
 
-    def get_list(
+    def get_filelist(
         self,
         basedir: str,
         marker: str = '',

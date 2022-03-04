@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 
 from boto3.dynamodb.conditions import Key
 
-from ..aws.resource_provider import DYNAMO_DB
+from ..aws.resource import DYNAMO_DB
 from ..utils.logger import Logger
 from .db import DB, DBType
 
@@ -59,19 +59,20 @@ class DynamoDB(DB):
         **kwargs,
     ) -> List[Dict]:
         items = []
+        if key_condition_expression is not None:
+            kwargs.update({'KeyConditionExpression': key_condition_expression})
+        if filter_expression is not None:
+            kwargs.update({'FilterExpression': filter_expression})
         try:
             response = self._table.query(
-                KeyConditionExpression=key_condition_expression,
-                FilterExpression=filter_expression,
+                **kwargs,
             )
             items += response['Items']
 
             while 'LastEvaluatedKey' in response:
                 response = self._table.query(
-                    KeyConditionExpression=key_condition_expression,
-                    FilterExpression=filter_expression,
+                    **kwargs,
                     ExclusiveStartKey=response['LastEvaluatedKey'],
-                    **kwargs
                 )
                 items += response['Items']
         except Exception as e:

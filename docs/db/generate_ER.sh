@@ -1,0 +1,1 @@
+docker run -v "$PWD/schema:/output" -v "$PWD/drivers:/drivers" --net="host" schemaspy/schemaspy:6.1.0 -t mysql -host 127.0.0.1:3307 -db iapp -u root -p pswd -s iapp -debug

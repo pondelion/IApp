@@ -17,10 +17,10 @@ class Storage(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def get_list(self, **kwargs):
+    def get_filelist(self, **kwargs):
         raise NotImplementedError
 
-    @abstractmethod
     @property
+    @abstractmethod
     def type(self) -> StorageType:
         raise NotImplementedError
