@@ -1,9 +1,12 @@
 import os
 from typing import List
 
+import botocore
+
 from .storage import Storage, StorageType
 from ..aws.resource import S3 as S3_resource
 from ..utils.config import AWSConfig
+from ..utils.logger import Logger
 
 
 class S3(Storage):
@@ -11,6 +14,12 @@ class S3(Storage):
     def __init__(self, bucket_name: str = AWSConfig.S3_BUCKET_NAME):
         super().__init__()
         self._bucket_name = bucket_name
+        try:
+            S3_resource.create_bucket(Bucket=bucket_name)
+            # self._bucket.create()
+            Logger.w('S3', f'created bucket [{bucket_name}]')
+        except S3_resource.meta.client.exceptions.BucketAlreadyOwnedByYou as e:
+            Logger.w('S3', f'bucket [{bucket_name}] already exists')
         self._bucket = S3_resource.Bucket(bucket_name)
 
     def save(

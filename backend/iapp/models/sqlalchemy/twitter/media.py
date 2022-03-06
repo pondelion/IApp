@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, BigInteger
+from sqlalchemy import Boolean, BigInteger, Column, DateTime, ForeignKey, Integer, String, BigInteger
 from sqlalchemy.dialects.mysql import DATETIME, TEXT
 from sqlalchemy.sql.functions import current_timestamp
 
@@ -6,8 +6,9 @@ from ..base import Base
 
 
 class TwitterMediaFile(Base):
-    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True, index=True)
     tweet_id = Column(BigInteger, ForeignKey("twittertweet.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("twitteruser.id"), nullable=False)
     media_url = Column(TEXT, nullable=False)
     media_s3_url = Column(TEXT)
     media_type = Column(TEXT, nullable=False)

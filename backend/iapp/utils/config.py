@@ -51,7 +51,7 @@ class _AWSConfig(type):
             Logger.i('Config', f'Setting AWS_ACCESS_KEY_ID to {config["ACCESS_KEY_ID"][:4]}***')
         if 'SECRET_ACCESS_KEY' in config:
             os.environ['AWS_SECRET_ACCESS_KEY'] = config['SECRET_ACCESS_KEY']
-            Logger.i('Config', f'Setting AWS_ACCESS_KEY_ID to {config["SECRET_ACCESS_KEY"][:4]}***')
+            Logger.i('Config', f'Setting AWS_SECRET_ACCESS_KEY to {config["SECRET_ACCESS_KEY"][:4]}***')
         if 'REGION_NAME' in config:
             os.environ['AWS_DEFAULT_REGION'] = config['REGION_NAME']
         if 'ENDPOINT_URL' not in config:

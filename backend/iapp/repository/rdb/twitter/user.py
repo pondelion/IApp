@@ -11,5 +11,5 @@ class TwitterUserRepository(BaseRDBRepository[TwitterUserModel, TwitterUserSchem
     def __init__(self):
         super().__init__(TwitterUserModel)
 
-    def get_by_screen_name(self, db: Session, screen_name: str) -> Optional[TwitterUserModel]:
+    def get_by_screen_name(self, db: Session, *, screen_name: str) -> Optional[TwitterUserModel]:
         return db.query(TwitterUserModel).filter(TwitterUserModel.screen_name == screen_name).first()

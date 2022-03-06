@@ -32,12 +32,24 @@ class BaseRDBRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> List[ModelType]:
         return db.query(self._model).offset(skip).limit(limit).all()
 
-    def create(self, db: Session, *, data: CreateSchemaType) -> ModelType:
+    def create(
+        self,
+        db: Session,
+        *,
+        data: CreateSchemaType,
+        commit: bool = True,
+        check_already_exists: bool = False
+    ) -> ModelType:
+        if check_already_exists:
+            db_data = self.get_by_id(db, id=data.id)
+            if db_data:
+                return db_data
         json_data = jsonable_encoder(data)
         db_data = self._model(**json_data)
         db.add(db_data)
-        db.commit()
-        db.refresh(db_data)
+        if commit:
+            db.commit()
+            db.refresh(db_data)
         return db_data
 
     def update(
@@ -46,6 +58,7 @@ class BaseRDBRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         db_data: ModelType,
         update_data: Union[UpdateSchemaType, Dict[str, Any]],
+        commit: bool = True,
     ) -> ModelType:
         json_data = jsonable_encoder(db_data)
         if isinstance(update_data, dict):
@@ -56,8 +69,9 @@ class BaseRDBRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field in update_data_dict:
                 setattr(db_data, field, update_data_dict[field])
         # db.add(db_data)
-        db.commit()
-        db.refresh(db_data)
+        if commit:
+            db.commit()
+            db.refresh(db_data)
         return db_data
 
     def update_by_filter(
@@ -66,20 +80,30 @@ class BaseRDBRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         filter_condition,
         update_data: Union[UpdateSchemaType, Dict[str, Any]],
+        commit: bool = True,
     ) -> int:
         if isinstance(update_data, dict):
             update_data_dict = update_data
         else:
             update_data_dict = update_data.dict(exclude_unset=True)
         updated = db.query(self._model).filter(filter_condition).update(update_data_dict)
-        db.commit()
+        if commit:
+            db.commit()
         return updated
 
-    def remove(self, db: Session, *, id: int) -> ModelType:
+    def remove(self, db: Session, *, id: int, commit: bool = True) -> ModelType:
         obj = db.query(self._model).get(id)
         db.delete(obj)
-        db.commit()
+        if commit:
+            db.commit()
         return ooj
 
     def exists(self, db: Session, *, id: int) -> bool:
         return True if db.query(self._model).get(id) else False
+
+    def upsert(self, db: Session, *, data: CreateSchemaType, commit: bool = True) -> ModelType:
+        db_data = self.get_by_id(db, id=data.id)
+        if db_data:
+            self.update(db, db_data=db_data, update_data=data.__dict__)
+        else:
+            self.create(db, data=data)

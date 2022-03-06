@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import Boolean, BigInteger, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.mysql import DATETIME, TEXT
 from sqlalchemy.sql.functions import current_timestamp
 
@@ -6,7 +6,7 @@ from ..base import Base
 
 
 class TwitterUser(Base):
-    id = Column(Integer, primary_key=True, index=True, autoincrement=False, nullable=False)
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=False, nullable=False)
     name = Column(TEXT, nullable=False)
     screen_name = Column(TEXT, nullable=False)
     account_created_at = Column(DateTime, nullable=False)
@@ -19,7 +19,7 @@ class TwitterUser(Base):
     location = Column(TEXT, nullable=True)
     time_zone = Column(TEXT, nullable=True)
     lang = Column(TEXT, nullable=True)
-    last_tweet_id = Column(Integer, nullable=True)
+    last_tweet_id = Column(BigInteger, nullable=True)
     created_at = Column(
         DATETIME(fsp=6),
         server_default=current_timestamp(6)
@@ -29,6 +29,3 @@ class TwitterUser(Base):
         server_default=current_timestamp(6),
         onupdate=current_timestamp(6)
     )
-
-
-TwitterUserInDB = TwitterUser

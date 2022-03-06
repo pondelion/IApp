@@ -36,7 +36,7 @@ class Callback(TwitterUserCrawler.Callback):
         # items['account_created_at'] = pd.to_datetime(items['created_at'])
         tus = TwitterUserScheme.parse_obj(items)
         print(tus)
-        target_user = tur.get_by_screen_name(db, args['user_id_or_screen_name'])
+        target_user = tur.get_by_screen_name(db, screen_name=args['user_id_or_screen_name'])
         if target_user:
             # 更新
             updated = tur.update_by_filter(
@@ -57,13 +57,14 @@ class Callback(TwitterUserCrawler.Callback):
 
 
 def main():
-    init_rdb()
+    init_rdb(recreate_table=True)
+    # init_rdb()
     uc = TwitterUserCrawler()
 
     screen_name = 'TwitterJP'
 
     ts1 = datetime.now()
-    target_user = tur.get_by_screen_name(db, screen_name)
+    target_user = tur.get_by_screen_name(db, screen_name=screen_name)
     print(target_user)
     ts2 = datetime.now()
     print((ts2-ts1).total_seconds())

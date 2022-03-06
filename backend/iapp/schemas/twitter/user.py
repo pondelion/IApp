@@ -20,6 +20,5 @@ class TwitterUser(BaseModel):
     lang: Optional[str] = None
 
 
-# class TwitterUserInDB(TwitterUser):
-#     created_at: datetime
-#     updated_at: datetime
+class TwitterUserInDB(TwitterUser):
+    pass

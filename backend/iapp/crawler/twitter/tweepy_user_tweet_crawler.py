@@ -6,6 +6,7 @@ from datetime import datetime
 
 from ..base_crawler import BaseCrawler
 from .api import TWEEPY_API
+from ...utils.logger import Logger
 
 
 class TwitterUserTweetCrawler(BaseCrawler):
@@ -18,9 +19,11 @@ class TwitterUserTweetCrawler(BaseCrawler):
         callback: BaseCrawler.Callback = BaseCrawler.DefaultCallback(),
         since_id: Optional[int] = None,
     ) -> Generator:
-        yield self._crawl(
+        itr = self._crawl(
             screen_name, count_per_page, n_pages, callback, since_id
         )
+        for tweets, kwargs in itr:
+            yield tweets, kwargs
 
     def _crawl(
         self,
@@ -43,6 +46,7 @@ class TwitterUserTweetCrawler(BaseCrawler):
             try:
                 tweets = TWEEPY_API.user_timeline(**kwargs)
                 if len(tweets) == 0:
+                    Logger.i('TwitterUserTweetCrawler', f'0 tweet fetched from user_timeline API. {kwargs}')
                     break
                 callback.on_finished(tweets, kwargs)
                 yield tweets, kwargs

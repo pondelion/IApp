@@ -57,7 +57,7 @@ class Callback(TwitterUserCrawler.Callback):
 
 
 def main():
-    init_rdb()
+    init_rdb(recreate_table=True)
     uc = TwitterUserCrawler()
 
     screen_name = 'TwitterJP'
