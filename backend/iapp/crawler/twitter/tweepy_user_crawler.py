@@ -47,15 +47,17 @@ class TwitterFollowerCrawler(BaseCrawler):
         self,
         user_id_or_screen_name: Union[int, str],
         callback: BaseCrawler.Callback = BaseCrawler.DefaultCallback(),
+        max_count: Optional[int] = None,
     ) -> Any:
         return self._crawl(
-            user_id_or_screen_name, callback
+            user_id_or_screen_name, callback=callback, max_count=max_count,
         )
 
     def _crawl(
         self,
         user_id_or_screen_name: Union[int, str],
         callback: BaseCrawler.Callback,
+        max_count: Optional[int] = None,
     ) -> Any:
         kwargs = {
             'user_id_or_screen_name': user_id_or_screen_name,
@@ -63,8 +65,9 @@ class TwitterFollowerCrawler(BaseCrawler):
 
         try:
             c = tweepy.Cursor(TWEEPY_API.followers, user_id_or_screen_name)
-            callback.on_finished(list(c.items()), kwargs)
-            return list(c.items())
+            tweets = list(c.items(max_count)) if max_count else list(c.items())
+            callback.on_finished(tweets, kwargs)
+            return tweets
         except Exception as e:
             callback.on_failed(e, kwargs)
             return None
@@ -76,15 +79,17 @@ class TwitterFolloweeCrawler(BaseCrawler):
         self,
         user_id_or_screen_name: Union[int, str],
         callback: BaseCrawler.Callback = BaseCrawler.DefaultCallback(),
+        max_count: Optional[int] = None,
     ) -> Any:
         return self._crawl(
-            user_id_or_screen_name, callback
+            user_id_or_screen_name, callback=callback, max_count=max_count,
         )
 
     def _crawl(
         self,
         user_id_or_screen_name: Union[int, str],
         callback: BaseCrawler.Callback,
+        max_count: Optional[int] = None,
     ) -> Any:
         kwargs = {
             'user_id_or_screen_name': user_id_or_screen_name,
@@ -92,8 +97,9 @@ class TwitterFolloweeCrawler(BaseCrawler):
 
         try:
             c = tweepy.Cursor(TWEEPY_API.friends, user_id_or_screen_name)
-            callback.on_finished(list(c.items()), kwargs)
-            return list(c.items())
+            tweets = list(c.items(max_count)) if max_count else list(c.items())
+            callback.on_finished(tweets, kwargs)
+            return tweets
         except Exception as e:
             callback.on_failed(e, kwargs)
             return None

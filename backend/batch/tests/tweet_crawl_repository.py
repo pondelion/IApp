@@ -120,9 +120,9 @@ def main():
     if not target_user:
         print(f'User data {screen_name} does not exists in DB, crawl user data before tweet crawling')
         return
-    target_tweets = ttr.get_by_user_id(db, user_id=target_user.id)
+    # target_tweets = ttr.get_by_user_id(db, user_id=target_user.id)
     print(f'target_user : {target_user.__dict__}')
-    print(f'tweets : {target_tweets}')
+    # print(f'tweets : {target_tweets}')
     ts2 = datetime.now()
     print((ts2-ts1).total_seconds())
     if target_user.last_tweet_id:
@@ -131,7 +131,7 @@ def main():
         print(elapsed_sec_since_last_update)
         if elapsed_sec_since_last_update > 60:
             print('Over 60 sec passed since updated. Re-crawling.')
-            itr = utc.run(
+            itr = utc.run_generator(
                 screen_name=screen_name,
                 count_per_page=5,
                 n_pages=2,
@@ -142,7 +142,7 @@ def main():
                 print(f'{len(tweets)} :: {kwargs}')
     else:
         print('No tweets record found')
-        itr = utc.run(
+        itr = utc.run_generator(
             screen_name=screen_name,
             count_per_page=10,
             n_pages=2,

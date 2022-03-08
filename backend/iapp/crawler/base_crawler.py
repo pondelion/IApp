@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, Generator
 
 import pandas as pd
 
@@ -56,15 +56,28 @@ class BaseCrawler(metaclass=ABCMeta):
             e: Exception,
             args: Dict,
         ) -> None:
-            pass
+            raise e
 
     def __init__(self):
         """init"""
         pass
 
     @abstractmethod
-    def run(self) -> Any:
+    def run(
+        self,
+        *args,
+        callback: Callback = DefaultCallback(),
+        **kwargs,
+    ) -> Any:
         """run crawl
         Subclass must implemets this method
         """
+        raise NotImplementedError
+
+    def run_generator(
+        self,
+        *args,
+        callback: Callback = DefaultCallback(),
+        **kwargs,
+    ) -> Generator:
         raise NotImplementedError
