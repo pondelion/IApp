@@ -8,7 +8,7 @@ provider:
   profile: default
   stage: ${opt:stage,"dev"}
   region: ap-northeast-1
-  memorySize: 2048
+  memorySize: 8192
   iam:
     role:
       statements:

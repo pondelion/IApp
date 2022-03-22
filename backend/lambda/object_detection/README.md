@@ -2,9 +2,7 @@
 ## Deploy
 
 ```bash
-$ set -o allexport
-$ source .env
-$ set +o allexport
+$ set -o allexport && source .env && set +o allexport
 ```
 
 - Create repository
@@ -37,9 +35,19 @@ $ sudo docker tag iapp-lambda-object-detection:latest ${ECR_RESISTORY_ID}.dkr.ec
 $ sudo docker push ${ECR_RESISTORY_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/iapp-lambda-object-detection:latest
 ```
 
+```bash
+$ sudo -E sls deploy
+```
+
 - test
+
+
+```bash
+$ aws cognito-idp admin-initiate-auth --user-pool-id ${COGNITO_USER_POOL_ID} --client-id ${COGNITO_CLIENT_ID} --auth-flow ADMIN_NO_SRP_AUTH --auth-parameters USERNAME=${COGNITO_USERNAME},PASSWORD=${COGNITO_PASSWORD}
+```
 
 ```bash
 $ TOKEN=***
-$ curl -X POST https://********.execute-api.ap-northeast-1.amazonaws.com/dev/api/v1/detect_object -H "Authorization: ${TOKEN}" -d "{'image_urls': ['https://ultralytics.com/images/zidane.jpg']}"
+$ OBJECT_DETECT_URL=https://********.execute-api.ap-northeast-1.amazonaws.com/dev/api/v1/detect_object
+$ curl -X POST ${OBJECT_DETECT_URL} -H "Authorization: ${TOKEN}" -H "Content-Type: application/json" -d "{'image_urls': ['https://ultralytics.com/images/zidane.jpg']}"
 ```

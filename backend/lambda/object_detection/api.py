@@ -4,6 +4,8 @@ import os
 import json
 import pickle
 import io
+import sys
+sys.path.append('./yolov5')
 
 import boto3
 import requests
@@ -11,8 +13,10 @@ import requests
 
 DYNAMODB_TABLE_NAME = os.environ['DYNAMODB_TABLE_NAME']
 model = None
+print('start loading model')
 with open('model/model_yolov5s.pkl', mode='rb') as f:
     model = pickle.load(f)
+print('done loading model')
 s3 = boto3.client('s3')
 
 
@@ -35,18 +39,18 @@ def detect_image(img_url: str):
         raise ValueError(f'Invalid image url : {img_url}')
     return [{
         'label': model.names[int(res[5])],
-        'rect': res[:4].tolist(),
-        'conf': res[4],
+        'rect': res[:4].astype(str).tolist(),
+        'conf': str(res[4]),
     } for res in results.xyxy[0].numpy()]
 
 
 def detect_image_batch(imgs):
     batch_results = model(imgs)
-    return [{
+    return [[{
         'label': model.names[int(res[5])],
         'rect': res[:4].tolist(),
         'conf': res[4],
-    } for res in results.numpy() for results in batch_results.xyxy]
+    } for res in results.numpy()] for results in batch_results.xyxy]
 
 
 def save_results2dynamodb(results):
@@ -56,8 +60,8 @@ def save_results2dynamodb(results):
 def detect_object_api(event, context):
     print('detect_object_api')
     print(event)
-    if 'image_urls' in event:
-        image_urls = event['image_urls']
+    if 'image_urls' in event['body']:
+        image_urls = event['body']['image_urls']
         if not isinstance(image_urls, list):
             image_urls = [image_urls]
         results_list = []
