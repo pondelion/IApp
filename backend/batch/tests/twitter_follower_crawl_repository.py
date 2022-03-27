@@ -35,7 +35,6 @@ from iapp.repository.rdb import (
 from iapp.db.rdb import db, init_rdb
 
 
-TAG = 'twitter_user_crawl'
 user_repo = TwitterUserRepository()
 follower_repo = TwitterFollowerRepository()
 followee_repo = TwitterFolloweeRepository()

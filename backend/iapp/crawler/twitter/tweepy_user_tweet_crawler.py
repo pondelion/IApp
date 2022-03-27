@@ -19,9 +19,10 @@ class TwitterUserTweetCrawler(BaseCrawler):
         callback: BaseCrawler.Callback = BaseCrawler.DefaultCallback(),
         since_id: Optional[int] = None,
     ) -> Any:
-        return self._crawl(
-            screen_name, count_per_page, n_pages, callback, since_id
+        tweets, kwargs = self._crawl(
+            screen_name, count_per_page, n_pages, callback, since_id,
         )
+        return tweets, kwargs
 
     def run_generator(
         self,
@@ -31,8 +32,8 @@ class TwitterUserTweetCrawler(BaseCrawler):
         callback: BaseCrawler.Callback = BaseCrawler.DefaultCallback(),
         since_id: Optional[int] = None,
     ) -> Generator:
-        itr = self._crawl(
-            screen_name, count_per_page, n_pages, callback, since_id
+        itr = self._crawl_generator(
+            screen_name, count_per_page, n_pages, callback, since_id,
         )
         for tweets, kwargs in itr:
             yield tweets, kwargs
@@ -44,7 +45,6 @@ class TwitterUserTweetCrawler(BaseCrawler):
         n_pages: int,
         callback: BaseCrawler.Callback,
         since_id: Optional[int] = None,
-        generate: bool = False,
     ) -> Any:
         kwargs = {
             'screen_name': screen_name,
@@ -63,12 +63,37 @@ class TwitterUserTweetCrawler(BaseCrawler):
                     Logger.i('TwitterUserTweetCrawler', f'0 tweet fetched from user_timeline API. {kwargs}')
                     break
                 callback.on_finished(tweets, kwargs)
-                if generate:
-                    yield tweets, kwargs
-                else:
-                    all_tweets += tweets
+                all_tweets += list(tweets)
             except Exception as e:
                 callback.on_failed(e, kwargs)
-        if not generate:
-            del kwargs['page']
-            return all_tweets, kwargs
+        del kwargs['page']
+        return all_tweets, kwargs
+
+    def _crawl_generator(
+        self,
+        screen_name: str,
+        count_per_page: int,
+        n_pages: int,
+        callback: BaseCrawler.Callback,
+        since_id: Optional[int] = None,
+    ) -> Any:
+        kwargs = {
+            'screen_name': screen_name,
+            'count': count_per_page,
+        }
+        if since_id is not None:
+            kwargs['since_id'] = since_id
+        pages = range(1, n_pages+1)
+        all_tweets = []
+
+        for page in pages:
+            kwargs['page'] = page
+            try:
+                tweets = TWEEPY_API.user_timeline(**kwargs)
+                if len(tweets) == 0:
+                    Logger.i('TwitterUserTweetCrawler', f'0 tweet fetched from user_timeline API. {kwargs}')
+                    break
+                callback.on_finished(tweets, kwargs)
+                yield tweets, kwargs
+            except Exception as e:
+                callback.on_failed(e, kwargs)

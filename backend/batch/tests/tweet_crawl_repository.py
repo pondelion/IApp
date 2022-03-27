@@ -27,7 +27,6 @@ from iapp.repository.rdb import (
 from iapp.db.rdb import db, init_rdb
 
 
-TAG = 'twitter_tweet_crawl'
 tur = TwitterUserRepository()
 ttr = TwitterTweetRepository()
 tmr = TwitterMediaRepository()

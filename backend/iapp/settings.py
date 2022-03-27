@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_PORT: int = 3306
 
+    DEFAULT_DB_RECORD_REFRESH_SECS: int = 5*60
+
     @property
     def MYSQL_DATABASE_URI(self) -> str:
         return f'mysql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4'

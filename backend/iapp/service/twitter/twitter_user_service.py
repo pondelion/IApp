@@ -128,10 +128,11 @@ class _TwitterUserServiceMySQL(ITwitterUserService):
                 print(f'{user_id_or_screen_name} : Over {self.DB_RECORD_REFRESH_SECS} secs past since last update, re-crawling')
                 user_data = self._user_crawler.run(user_id_or_screen_name=user_id_or_screen_name)
                 tus = TwitterUserSchema.parse_obj(user_data._json)
-                updated = self._tur.update_by_filter(
+                updated = self._tur.update(
                     self._db,
-                    filter_conditions=TwitterUserModel.screen_name==user_id_or_screen_name,
-                    update_data=tus
+                    db_data=user,
+                    # filter_conditions=TwitterUserModel.screen_name==user_id_or_screen_name,
+                    update_data=tus,
                 )
                 return updated
             else:
