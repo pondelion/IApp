@@ -1,10 +1,6 @@
 
 ## Deploy
 
-```bash
-$ set -o allexport && source .env && set +o allexport
-```
-
 - Create repository
 
 ```bash

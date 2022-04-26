@@ -5,6 +5,7 @@ import json
 import pickle
 import io
 import sys
+import urllib
 sys.path.append('./yolov5')
 
 import boto3
@@ -18,6 +19,7 @@ with open('model/model_yolov5s.pkl', mode='rb') as f:
     model = pickle.load(f)
 print('done loading model')
 s3 = boto3.client('s3')
+dynamodb = boto3.client('dynamodb')
 
 
 def detect_image(img_url: str):
@@ -30,7 +32,9 @@ def detect_image(img_url: str):
         img = cv2.imdecode(img, cv2.IMREAD_COLOR)
         results = model(img)
     elif img_url.startswith('s3://'):
-        tmp_img_filepath = os.path.basename(img_url)
+        tmp_img_filepath = os.path.join(
+            '/tmp', os.path.basename(img_url)
+        )
         bucket = img_url.strip('s3://').split('/')[0]
         key = '/'.join(img_url.strip('s3://').split('/')[1:])
         s3.download_file(bucket, key, tmp_img_filepath)
@@ -53,8 +57,16 @@ def detect_image_batch(imgs):
     } for res in results.numpy()] for results in batch_results.xyxy]
 
 
-def save_results2dynamodb(results):
-    print(results)
+def save_results2dynamodb(results, bucket, file_key):
+    print(f'save_results2dynamodb : {results}')
+    if DYNAMODB_TABLE_NAME == 'irld-object-detection':
+        item = {
+            'device_name': file_key.split('/')[0],
+            's3_filepath': os.path.join(f's3://{bucket}', file_key),
+            'od_result': results,
+            'datetime': datetime.now()
+        }
+        dynamodb.put_item(TableName=DYNAMODB_TABLE_NAME, Item=item)
 
 
 def detect_object_api(event, context):
@@ -96,10 +108,17 @@ def detect_object_s3_trigger(event, context):
         bucket = event['Records'][0]['s3']['bucket']['name']
         key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
         try:
-            tmp_img_filepath = os.path.basename(key)
+            tmp_img_filepath = os.path.join(
+                '/tmp', os.path.basename(key)
+            )
             s3.download_file(bucket, key, tmp_img_filepath)
             results = model(tmp_img_filepath)
-            save_results2dynamodb(results)
+            results = [{
+                'label': model.names[int(res[5])],
+                'rect': res[:4].astype(str).tolist(),
+                'conf': str(res[4]),
+            } for res in results.xyxy[0].numpy()]
+            save_results2dynamodb(results, bucket, key)
         except Exception as e:
             print(e)
             raise e
