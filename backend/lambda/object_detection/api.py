@@ -1,11 +1,15 @@
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
+import decimal
+from decimal import Decimal
 import os
 import json
 import pickle
 import io
 import sys
 import urllib
+import copy
+from typing import Dict, Union
 sys.path.append('./yolov5')
 
 import boto3
@@ -19,7 +23,8 @@ with open('model/model_yolov5s.pkl', mode='rb') as f:
     model = pickle.load(f)
 print('done loading model')
 s3 = boto3.client('s3')
-dynamodb = boto3.client('dynamodb')
+dynamodb = boto3.resource('dynamodb')
+dynamodb_table = dynamodb.Table(DYNAMODB_TABLE_NAME)
 
 
 def detect_image(img_url: str):
@@ -57,16 +62,39 @@ def detect_image_batch(imgs):
     } for res in results.numpy()] for results in batch_results.xyxy]
 
 
+def empty2null(data: Dict) -> Union[Dict, None]:
+    ret = copy.deepcopy(data)
+
+    if isinstance(data, dict):
+        for k, v in ret.items():
+            ret[k] = empty2null(v)
+
+    if data == '':
+        ret = None
+
+    return ret
+
+
+def format_data(data: Dict):
+    try:
+        data = empty2null(data)
+        data = json.loads(json.dumps(data), parse_float=Decimal)
+    except Exception as e:
+        print(f'Failed to format data : {e}')
+    return data
+
+
 def save_results2dynamodb(results, bucket, file_key):
     print(f'save_results2dynamodb : {results}')
     if DYNAMODB_TABLE_NAME == 'irld-object-detection':
         item = {
-            'device_name': file_key.split('/')[0],
+            'device_name': file_key.split('/')[1],
             's3_filepath': os.path.join(f's3://{bucket}', file_key),
             'od_result': results,
-            'datetime': datetime.now()
+            'datetime': datetime.now(timezone.utc).isoformat()
         }
-        dynamodb.put_item(TableName=DYNAMODB_TABLE_NAME, Item=item)
+        item = format_data(item)
+        dynamodb_table.put_item(Item=item)
 
 
 def detect_object_api(event, context):
@@ -115,8 +143,8 @@ def detect_object_s3_trigger(event, context):
             results = model(tmp_img_filepath)
             results = [{
                 'label': model.names[int(res[5])],
-                'rect': res[:4].astype(str).tolist(),
-                'conf': str(res[4]),
+                'rect': res[:4].astype(float).tolist(),
+                'conf': res[4].astype(float),
             } for res in results.xyxy[0].numpy()]
             save_results2dynamodb(results, bucket, key)
         except Exception as e:
