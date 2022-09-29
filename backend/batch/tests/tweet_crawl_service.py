@@ -30,7 +30,7 @@ def main():
     tweets = tts.get_tweet_by_screen_name(
         screen_name=screen_name,
         count_per_page=10,
-        n_pages=1,
+        n_pages=3,
     )
     print(tweets)
 

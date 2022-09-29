@@ -32,7 +32,7 @@ class TwitterUserCrawler(BaseCrawler):
         }
 
         try:
-            user = TWEEPY_API.get_user(user_id_or_screen_name)
+            user = TWEEPY_API.get_user(screen_name=user_id_or_screen_name)
             user._json['account_created_at'] = str(pd.to_datetime(user._json['created_at']))
             callback.on_finished(user, kwargs)
             return user

@@ -4,6 +4,8 @@ import secrets
 
 from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn
 
+from .utils.config import DBConfig
+
 
 class Settings(BaseSettings):
     API_V1_STR: str = '/api/v1'
@@ -27,9 +29,9 @@ class Settings(BaseSettings):
 
 settings = Settings(
     SERVER_HOST='http://127.0.0.0.1',
-    DB_USERNAME=os.environ['MYSQL_USER'],
-    DB_PASSWORD=os.environ['MYSQL_PASSWORD'],
-    DB_HOST=os.environ.get('DB_HOST', '127.0.0.1'),
-    DB_PORT=int(os.environ.get('DB_PORT', '3306')),
-    DB_NAME=os.environ['MYSQL_DATABASE'],
+    DB_USERNAME=DBConfig.MYSQL_USER,
+    DB_PASSWORD=DBConfig.MYSQL_PASSWORD,
+    DB_HOST=DBConfig.DB_HOST,
+    DB_PORT=int(DBConfig.DB_PORT),
+    DB_NAME=DBConfig.MYSQL_DATABASE,
 )

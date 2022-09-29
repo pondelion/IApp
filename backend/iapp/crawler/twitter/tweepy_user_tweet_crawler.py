@@ -84,7 +84,6 @@ class TwitterUserTweetCrawler(BaseCrawler):
         if since_id is not None:
             kwargs['since_id'] = since_id
         pages = range(1, n_pages+1)
-        all_tweets = []
 
         for page in pages:
             kwargs['page'] = page

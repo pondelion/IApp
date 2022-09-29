@@ -14,7 +14,7 @@ class TwitterTweet(Base):
     lang = Column(TEXT, nullable=True)
     user_id = Column(BigInteger, ForeignKey("twitteruser.id"), nullable=False)
     has_media_files = Column(Boolean, nullable=False)
-    in_reply_to_user_id = Column(Integer, nullable=True)
+    in_reply_to_user_id = Column(BigInteger, nullable=True)
     in_reply_to_screen_name = Column(TEXT, nullable=True)
     created_at = Column(
         DATETIME(fsp=6),
