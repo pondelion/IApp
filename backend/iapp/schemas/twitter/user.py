@@ -22,5 +22,6 @@ class TwitterUser(BaseModel):
 
 class TwitterUserInDB(TwitterUser):
     last_tweet_id: Optional[int] = None
+    last_tweet_crawled_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime

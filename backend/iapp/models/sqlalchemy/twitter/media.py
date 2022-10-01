@@ -7,8 +7,8 @@ from ..base import Base
 
 class TwitterMediaFile(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True, index=True)
-    tweet_id = Column(BigInteger, ForeignKey("twittertweet.id"), nullable=False)
-    user_id = Column(BigInteger, ForeignKey("twitteruser.id"), nullable=False)
+    tweet_id = Column(BigInteger, ForeignKey("twittertweet.id", ondelete='SET NULL'), nullable=True)
+    user_id = Column(BigInteger, ForeignKey("twitteruser.id", ondelete='SET NULL'), nullable=True)
     media_url = Column(TEXT, nullable=False)
     media_s3_url = Column(TEXT)
     media_type = Column(TEXT, nullable=False)

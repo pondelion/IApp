@@ -163,21 +163,26 @@ class _TwitterTweetServiceMySQL(ITwitterTweetService):
         count_per_page: int,
         n_pages: int,
     ) -> Optional[List[TwitterTweetInDBSchema]]:
-        latest_tweet_updated_at = None
-        if latest_tweet_updated_at:
+        latest_tweet = self._ttr.get_latest_tweet(self._db, user_id=user.id)
+        latest_tweet_updated_at = latest_tweet.updated_at if latest_tweet else None
+        latest_crawled_at = user.last_tweet_crawled_at
+        print(f'latest_tweet_updated_at : {latest_tweet_updated_at}')
+        # if latest_tweet_updated_at:
+        if latest_crawled_at:
             # Tweets found in db for target user.
             ts = datetime.now()
-            elapsed_sec_since_last_update = (ts - latest_tweet_updated_at).total_seconds()
+            # elapsed_sec_since_last_update = (ts - latest_tweet_updated_at).total_seconds()
+            elapsed_sec_since_last_update = (ts - latest_crawled_at).total_seconds()
             print(elapsed_sec_since_last_update)
             if force_crawl or (elapsed_sec_since_last_update > _TwitterTweetServiceMySQL.DEFAULT_DB_RECORD_REFRESH_SECS):
                 # Over DEFAULT_DB_RECORD_REFRESH_SECS sec passed since last tweet updated, crawling new tweets and updating.
-                print(f'Over {_TwitterTweetServiceMySQL.DEFAULT_DB_RECORD_REFRESH_SECS} sec passed since updated, crawling new tweets and updating.')
+                print(f'Over {_TwitterTweetServiceMySQL.DEFAULT_DB_RECORD_REFRESH_SECS} sec passed since last crawl, crawling new tweets and updating.')
                 tweets = self._crawl_tweets(user, count_per_page, n_pages)
                 return tweets
             else:
                 # Using tweets data in db as cache.
                 print('Tweets data found in db, using cached data.')
-                return self._get_tweets_from_db(user, count_per_page, n_pages)
+                return self._get_tweets_from_db(self._db, user)
         else:
             # No tweets found in db for target user.
             print(f'tweets not found for user {user.screen_name}, crawling.')
@@ -189,6 +194,7 @@ class _TwitterTweetServiceMySQL(ITwitterTweetService):
         user: TwitterUserInDBSchema,
         count_per_page: int,
         n_pages: int,
+        save_media_file: Optional[bool] = True,
     ) -> Optional[List[TwitterTweetInDBSchema]]:
         kwargs = {
             'screen_name': user.screen_name,
@@ -197,6 +203,7 @@ class _TwitterTweetServiceMySQL(ITwitterTweetService):
         }
         if user.last_tweet_id:
             kwargs['since_id'] = user.last_tweet_id
+        dt_crawl = datetime.now()
         tweets, kwargs = self._utc.run(**kwargs)
         tweets = [format_data(tweet._json) for tweet in tweets]
         [tweet.update({'screen_name': user.screen_name}) for tweet in tweets]
@@ -207,50 +214,65 @@ class _TwitterTweetServiceMySQL(ITwitterTweetService):
         self._ttr.create_all(db, data_list=ttss, check_already_id_exists=True)
 
         # Save media files
-        for tweet in tweets:
-            if 'media' not in tweet['entities']:
-                continue
-            tweet_id = tweet['id']
-            user_id = tweet['user']['id']
-            medias = tweet['entities']['media']
-            s3_media_urls = []
-            for media in medias:
-                try:
-                    media_id = media['id']
-                    media_type = media['type']
-                    media_url = media['media_url']
-                    filename = media_url.split("/")[-1]
-                    local_tmp_filepath = f'/tmp/{filename}'
-                    urllib.request.urlretrieve(media_url, local_tmp_filepath)
-                    s3_filepath = os.path.join(
-                        DataLocationConfig.TWITTER_MEDIAFILE_DIR,
-                        f'{user_id}',
-                        filename,
-                    )
-                    self._bucket.save(local_tmp_filepath, s3_filepath)
-                    os.remove(local_tmp_filepath)
-                    Logger.d(self.__class__.__name__, f'Saved media file to {s3_filepath}')
-                    s3_media_urls.append(s3_filepath)
-                    tms = TwitterMediaSchema(
-                        id=media_id,
-                        tweet_id=tweet_id,
-                        user_id=user_id,
-                        media_url=media_url,
-                        media_s3_url=s3_filepath,
-                        media_type=media_type,
-                    )
-                    self._tmr.upsert(db, data=tms)
-                except Exception as e:
-                    print(e)
-                    raise e
+        if save_media_file:
+            for tweet in tweets:
+                if 'media' not in tweet['entities']:
+                    continue
+                tweet_id = tweet['id']
+                user_id = tweet['user']['id']
+                medias = tweet['entities']['media']
+                s3_media_urls = []
+                for media in medias:
+                    try:
+                        media_id = media['id']
+                        media_type = media['type']
+                        media_url = media['media_url']
+                        filename = media_url.split("/")[-1]
+                        local_tmp_filepath = f'/tmp/{filename}'
+                        urllib.request.urlretrieve(media_url, local_tmp_filepath)
+                        s3_filepath = os.path.join(
+                            DataLocationConfig.TWITTER_MEDIAFILE_DIR,
+                            f'{user_id}',
+                            filename,
+                        )
+                        self._bucket.save(local_tmp_filepath, s3_filepath)
+                        os.remove(local_tmp_filepath)
+                        Logger.d(self.__class__.__name__, f'Saved media file to {s3_filepath}')
+                        s3_media_urls.append(s3_filepath)
+                        tms = TwitterMediaSchema(
+                            id=media_id,
+                            tweet_id=tweet_id,
+                            user_id=user_id,
+                            media_url=media_url,
+                            media_s3_url=s3_filepath,
+                            media_type=media_type,
+                        )
+                        self._tmr.upsert(db, data=tms)
+                    except Exception as e:
+                        print(e)
+                        raise e
 
         # Update user last_tweet_id
         user_id = user.id
-        latest_tweet_id = self._ttr.get_latest_tweet(db, user_id=user_id)
+        latest_tweet_id = self._ttr.get_latest_tweet(db, user_id=user_id).id
         print(f'latest_tweet_id : {latest_tweet_id}')
         target_user = self._tur.get_by_id(db, id=user_id)
-        self._tur.update(db, db_data=target_user, update_data={'last_tweet_id': latest_tweet_id})
+        self._tur.update(
+            db,
+            db_data=target_user,
+            update_data={
+                'last_tweet_id': latest_tweet_id,
+                'last_tweet_crawled_at': dt_crawl,
+            }
+        )
 
+        return ttss
+
+    def _get_tweets_from_db(self, db, user: TwitterUserInDBSchema) -> Optional[List[TwitterTweetModel]]:
+        tweets = self._ttr.get_by_user_id(db, user_id=user.id)
+        if tweets is None:
+            return None
+        ttss = [TwitterTweetSchema.parse_obj(tweet.__dict__) for tweet in tweets]
         return ttss
 
 

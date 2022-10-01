@@ -58,6 +58,7 @@ class TwitterUserTweetCrawler(BaseCrawler):
         for page in pages:
             kwargs['page'] = page
             try:
+                print(f'kwargs : {kwargs}')
                 tweets = TWEEPY_API.user_timeline(**kwargs)
                 if len(tweets) == 0:
                     Logger.i('TwitterUserTweetCrawler', f'0 tweet fetched from user_timeline API. {kwargs}')

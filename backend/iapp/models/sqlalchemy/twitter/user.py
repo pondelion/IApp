@@ -20,6 +20,7 @@ class TwitterUser(Base):
     time_zone = Column(TEXT, nullable=True)
     lang = Column(TEXT, nullable=True)
     last_tweet_id = Column(BigInteger, nullable=True)
+    last_tweet_crawled_at = Column(DATETIME, nullable=True)
     created_at = Column(
         DATETIME(fsp=6),
         server_default=current_timestamp(6)

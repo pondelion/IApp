@@ -121,7 +121,7 @@ class _TwitterUserServiceMySQL(ITwitterUserService):
     ) -> TwitterUserModel:
         if user:
             # Alreay exists in db.
-            print(f'{user_id_or_screen_name} already exists in db.')
+            print(f'twitter user [{user_id_or_screen_name}] already exists in db.')
             elapsed_since_last_update = (datetime.now() - user.updated_at).total_seconds()
             if elapsed_since_last_update > self.DB_RECORD_REFRESH_SECS:
                 # The record is old, re-crawling

@@ -7,8 +7,8 @@ from ..base import Base
 
 class TwitterFollowee(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(BigInteger, ForeignKey("twitteruser.id"), nullable=False)
-    followee_id = Column(BigInteger, ForeignKey("twitteruser.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("twitteruser.id", ondelete='CASCADE'), nullable=False)
+    followee_id = Column(BigInteger, ForeignKey("twitteruser.id", ondelete='CASCADE'), nullable=False)
     created_at = Column(
         DATETIME(fsp=6),
         server_default=current_timestamp(6)

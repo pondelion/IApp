@@ -16,6 +16,14 @@ class TwitterTweetRepository(BaseRDBRepository[TwitterTweetModel, TwitterTweetSc
     def get_by_user_id(self, db: Session, *, user_id: int) -> Optional[List[TwitterTweetModel]]:
         return db.query(TwitterTweetModel).filter(TwitterTweetModel.user_id == user_id).all()
 
-    def get_latest_tweet(self, db: Session, *, user_id: int) -> Optional[int]:
-        result = db.query(func.max(TwitterTweetModel.id).label("max_id")).filter(TwitterTweetModel.user_id == user_id).one()
-        return result[0] if result else None
+    def get_latest_tweet(self, db: Session, *, user_id: int) -> Optional[TwitterTweetModel]:
+        subqry = db.query(
+            func.max(TwitterTweetModel.id)#.label("max_id")
+        ).filter(
+            TwitterTweetModel.user_id == user_id
+        ).scalar_subquery()
+        result = db.query(TwitterTweetModel).filter(
+            TwitterTweetModel.user_id == user_id,
+            TwitterTweetModel.id == subqry,
+        ).first()
+        return result
