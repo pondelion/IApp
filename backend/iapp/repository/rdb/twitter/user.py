@@ -1,9 +1,9 @@
 from typing import List, Optional
 
-from ..base import BaseRDBRepository
 from ....db.rdb import Session
 from ....models.sqlalchemy.twitter import TwitterUser as TwitterUserModel
 from ....schemas.twitter import TwitterUser as TwitterUserSchema
+from ..base import BaseRDBRepository
 
 
 class TwitterUserRepository(BaseRDBRepository[TwitterUserModel, TwitterUserSchema, TwitterUserSchema]):

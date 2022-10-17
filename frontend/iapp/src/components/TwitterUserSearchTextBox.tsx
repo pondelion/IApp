@@ -1,5 +1,5 @@
+import TextField from '@material-ui/core/TextField';
 import React from 'react';
-import TextField from '@material-ui/core/TextField'
 
 
 export type SearchTextBoxProps = {
@@ -16,7 +16,7 @@ const TwitterUserSearchTextBox: React.FC<SearchTextBoxProps> = (props: SearchTex
       label="User Name | Screen Name"
       name="username"
       autoComplete="User Name | Screen Name"
-      onChange={props.onSearchTextChange}
+      onChange={(e) => props.onSearchTextChange(e)}
     />
   )
 }

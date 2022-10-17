@@ -1,9 +1,4 @@
-import pytest
-
-from iapp.crawler.twitter.tweepy_crawler import (
-    UserTweetCrawler,
-    UserInfoCrawler,
-)
+from iapp.crawler.twitter.tweepy_crawler import UserInfoCrawler
 
 
 class TestTwitterCrawler:

@@ -1,10 +1,11 @@
-import React from 'react';
-import { makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import Typography from '@material-ui/core/Typography';
+import React from 'react';
+import ImageGallery, { ImgData } from '../components/ImageGallery';
 import RawTweetList from './RawTweetList';
 
 
@@ -49,7 +50,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 export type TwitterUserSummaryTabProps = {
-  tweets: any
+  tweets: any,
+  images: ImgData[],
 }
 
 const TwitterUserSummaryTab: React.FC<TwitterUserSummaryTabProps> = (props: TwitterUserSummaryTabProps) => {
@@ -71,8 +73,8 @@ const TwitterUserSummaryTab: React.FC<TwitterUserSummaryTabProps> = (props: Twit
     <div>
       <AppBar position="static">
         <Tabs value={selectedTab} onChange={handleChange} aria-label="simple tabs example">
-          <Tab label="Raw Tweet" {...a11yProps(0)} style={{textTransform: 'none'}}/>
-          <Tab label="Tweet Statistics" {...a11yProps(1)} style={{textTransform: 'none'}}/>
+          <Tab label="Raw Tweet" {...a11yProps(0)} style={{ textTransform: 'none' }} />
+          <Tab label="Media Files" {...a11yProps(1)} style={{ textTransform: 'none' }} />
         </Tabs>
       </AppBar>
       <TabPanel value={selectedTab} index={0}>
@@ -82,7 +84,7 @@ const TwitterUserSummaryTab: React.FC<TwitterUserSummaryTabProps> = (props: Twit
         />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <div />i
+        <ImageGallery images={props.images} />
       </TabPanel>
     </div>
   );

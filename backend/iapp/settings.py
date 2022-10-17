@@ -1,8 +1,7 @@
-import os
-from typing import Optional
 import secrets
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn
+from pydantic import AnyHttpUrl, BaseSettings
+from sqlalchemy.engine.url import URL
 
 from .utils.config import DBConfig
 
@@ -20,11 +19,27 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_PORT: int = 3306
 
-    DEFAULT_DB_RECORD_REFRESH_SECS: int = 5*60
+    DEFAULT_DB_RECORD_REFRESH_SECS: int = 30 * 60
+
+    DISABLE_AUTH: bool = False
 
     @property
     def MYSQL_DATABASE_URI(self) -> str:
-        return f'mysql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4'
+        dialect_driver = 'mysql'
+        url = URL(
+            dialect_driver,
+            self.DB_USERNAME,
+            self.DB_PASSWORD,
+            self.DB_HOST,
+            self.DB_PORT,
+            self.DB_NAME,
+            query={
+                'charset': 'utf8mb4',
+                # 'timezone': 'utc',
+            }
+        )
+        return url
+        #return f'mysql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4'
 
 
 settings = Settings(
@@ -34,4 +49,5 @@ settings = Settings(
     DB_HOST=DBConfig.DB_HOST,
     DB_PORT=int(DBConfig.DB_PORT),
     DB_NAME=DBConfig.MYSQL_DATABASE,
+    DISABLE_AUTH=True,
 )

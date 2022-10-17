@@ -1,75 +1,72 @@
-import React, { useEffect }  from 'react';
-import TwitterUserSummary from './pages/TwitterUserSummary';
-import SignIn from './pages/SignIn';
-import Header from './layout/Header';
-import SideBar from './layout/SideBar';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { appTheme } from './theme/materialui';
-import { userPool } from './aws/Cognito';
+import axios from 'axios';
+//@ts-ignore
+import { Service } from 'axios-middleware';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import './App.css';
+import { userPool } from './aws/Cognito';
+import SignIn from './pages/SignIn';
+import TwitterAnalysis from './pages/TwitterAnalysis';
+import {
+  rclSignOut,
+  rclStateAuth,
+  rclStateGuestMode
+} from './states/Recoil';
+import { appTheme } from './theme/materialui';
 
 
 function App() {
-
-  const [signedIn, setSignedIn] = React.useState<boolean|null>(null);
-  const [signedInUserName, setSignedInUserName] = React.useState<string>("");
+  const [authState, setAuthState] = useRecoilState(rclStateAuth);
+  const [signOut, setSignOut] = useRecoilState(rclSignOut);
+  const [guestMode, setGuestMode] = useRecoilState(rclStateGuestMode);
+  const axiosService = new Service(axios);
+  console.log(authState.isSignedIn);
+  console.log(authState.signedInUsername);
 
   useEffect(() => {
-    const cognitoUser = userPool.getCurrentUser()
-    if (cognitoUser) {  // Already signed in.
-      setSignedIn(true);
-      setSignedInUserName(cognitoUser.getUsername());
-      console.log('signed in');
-    } else {
-      setSignedIn(false);
-      setSignedInUserName("");
-      console.log('no user signing in');
+    if (!guestMode) {
+      const cognitoUser = userPool.getCurrentUser();
+      if (cognitoUser) {  // Already signed in.
+        cognitoUser.getSession((err: any, session: any) => {
+          if (session.isValid()) {
+            setAuthState({
+              isSignedIn: true,
+              signedInUsername: cognitoUser.getUsername(),
+              // accessToken: session.accessToken.jwtToken,
+              accessToken: session.idToken.jwtToken,
+            });
+            axiosService.register({
+              onRequest(config: any) {
+                config.headers['Authorization'] = `Bearer ${session.idToken.jwtToken}`;
+                return config;
+              }
+            });
+          } else {
+            setSignOut(true);
+            console.log('invalid session');
+          }
+        });
+        console.log('signed in');
+      } else {
+        setSignOut(true);
+        console.log('not signed in');
+      }
     }
-  }, [])
-
-  const signedInContents = () => {
-    return (
-      <div className="authorizedMode">
-        <h3>You're now signed in as {signedInUserName}.</h3>
-        <TwitterUserSummary />
-      </div>
-    )
-  }
-
-  const signedOutContents = () => {
-    return (
-      <div className="unauthorizedMode">
-        <SignIn
-          setSignedIn={setSignedIn}
-          setSignedInUserName={setSignedInUserName}
-        />
-      </div>
-    )
-  }
-
-  const contents = () => {
-    if (signedIn === null) {
-      return (
-        <div>Checking signed in status...</div>
-      )
-    } else if (signedIn === true) {
-      return signedInContents()
-    } else if (signedIn === false) {
-      return signedOutContents()
-    }
-  }
-
+  }, [authState, guestMode]);
 
   return (
     <div className="App">
       <MuiThemeProvider theme={appTheme}>
-        <Header
-          signedIn={signedIn}
-          setSignedIn={setSignedIn}
-          signedInUserName={signedInUserName}
-          setSignedInUserName={setSignedInUserName}
-        />
-        { contents() }
+        <Router basename={process.env.PUBLIC_URL}>
+          <Routes >
+            <Route path="/" element={authState.isSignedIn ? <TwitterAnalysis /> : <Navigate to="/signin" replace />} />
+          </Routes >
+          <Routes >
+            <Route path="/signin" element={authState.isSignedIn ? <Navigate to="/" replace /> : <SignIn />} />
+          </Routes >
+        </Router>
       </MuiThemeProvider>
     </div>
   );

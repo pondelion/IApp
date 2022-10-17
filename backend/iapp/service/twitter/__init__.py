@@ -1,2 +1,3 @@
-from .twitter_user_service import TwitterUserService
+from .twitter_media_service import TwitterMediaService
 from .twitter_tweet_service import TwitterTweetService
+from .twitter_user_service import TwitterUserService

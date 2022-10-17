@@ -1,4 +1,5 @@
-from sqlalchemy import Boolean, BigInteger, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import (BigInteger, Boolean, Column, DateTime, ForeignKey,
+                        Integer, String)
 from sqlalchemy.dialects.mysql import DATETIME, TEXT
 from sqlalchemy.sql.functions import current_timestamp
 
@@ -21,12 +22,13 @@ class TwitterUser(Base):
     lang = Column(TEXT, nullable=True)
     last_tweet_id = Column(BigInteger, nullable=True)
     last_tweet_crawled_at = Column(DATETIME, nullable=True)
+    histrical_crawled_at = Column(DATETIME, nullable=True)
     created_at = Column(
         DATETIME(fsp=6),
-        server_default=current_timestamp(6)
+        server_default=current_timestamp(6).op('AT TIME ZONE')('UTC')
     )
     updated_at = Column(
         DATETIME(fsp=6),
-        server_default=current_timestamp(6),
-        onupdate=current_timestamp(6)
+        server_default=current_timestamp(6).op('AT TIME ZONE')('UTC'),
+        onupdate=current_timestamp(6).op('AT TIME ZONE')('UTC')
     )

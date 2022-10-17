@@ -12,7 +12,7 @@ class TwitterTweet(BaseModel):
     favorite_count: int
     lang: str
     user_id: int
-    media_urls: Optional[List[str]] = []
+    # media_urls: Optional[List[str]] = []
     in_reply_to_user_id: Optional[int] = None
     in_reply_to_screen_name: Optional[str] = None
 
@@ -26,5 +26,6 @@ class TwitterTweetInDB(BaseModel):
     lang: str
     user_id: int
     has_media_files: bool
+    # media_file_id: Optional[int]
     in_reply_to_user_id: Optional[int] = None
     in_reply_to_screen_name: Optional[str] = None

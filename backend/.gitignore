@@ -4,3 +4,4 @@ iapp.egg-info
 log
 .pytest_cache
 /config
+.env

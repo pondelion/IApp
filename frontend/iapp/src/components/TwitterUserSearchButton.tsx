@@ -1,6 +1,6 @@
-import React from 'react';
 import Button from '@material-ui/core/Button';
 import SearchIcon from '@material-ui/icons/Search';
+import React from 'react';
 
 
 const styles = {
@@ -20,9 +20,9 @@ const TwitterUserSearchButton: React.FC<SearchButtonProps> = (props: SearchButto
       color="secondary"
       onClick={props.onSearchButtonClick}
       startIcon={<SearchIcon />}
-      style={{textTransform: 'none', color: 'white'}}
+      style={{ textTransform: 'none', color: 'white' }}
     >
-      Search Tweet & Analyze
+      Search Tweet
     </Button>
   )
 

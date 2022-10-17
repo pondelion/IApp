@@ -4,7 +4,6 @@ import yaml
 
 from .logger import Logger
 
-
 DEFAULT_AWS_FILEPATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '..', '..',
@@ -28,7 +27,8 @@ DEFAULT_DEV_FILEPATH = os.path.join(
 DEFAULT_DB_FILEPATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '..', '..',
-    'config/db_local.yml'
+    # 'config/db_local.yml'
+    'config/db_local_win1.yml'
 )
 
 
@@ -76,6 +76,8 @@ class _AWSConfig(type):
             return cls.config[key]
         elif key in os.environ:
             return os.environ[key]
+        elif f'AWS_{key}' in os.environ:
+            return os.environ[f'AWS_{key}']
         else:
             err_msg = f'No config value found for {key}, you must specify it in {DEFAULT_AWS_FILEPATH} or environment variable.'
             Logger.e('AWSConfig', f'{err_msg}')

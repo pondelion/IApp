@@ -1,12 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import create_database, database_exists
 
-from ..settings import settings
 from ..models.sqlalchemy.base import Base
 from ..models.sqlalchemy.twitter import *
+from ..settings import settings
 from ..utils.logger import Logger
-
 
 if not database_exists(settings.MYSQL_DATABASE_URI):
     Logger.i('rdb', f'Database not found. Creating database : {settings.MYSQL_DATABASE_URI}')
@@ -15,7 +14,7 @@ if not database_exists(settings.MYSQL_DATABASE_URI):
 engine = create_engine(
     settings.MYSQL_DATABASE_URI,
     convert_unicode=True,
-    pool_pre_ping=True
+    pool_pre_ping=True,
 )
 
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)

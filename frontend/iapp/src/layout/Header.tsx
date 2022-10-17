@@ -1,11 +1,12 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
-import { userPool } from '../aws/Cognito';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { AuthState, rclSignOut, rclStateAuth } from '../states/Recoil';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -25,27 +26,16 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-type Props = {
-  signedIn: boolean | null,
-  setSignedIn: React.Dispatch<React.SetStateAction<boolean|null>>,
-  signedInUserName: string,
-  setSignedInUserName: React.Dispatch<React.SetStateAction<string>>,
-}
+type Props = {}
 
 const Header: React.FC<Props> = (props: Props) => {
   const classes = useStyles();
+  const authState = useRecoilValue<AuthState>(rclStateAuth);
+  const [signedOut, setSignOut] = useRecoilState(rclSignOut);
 
   const signOut = () => {
-    const cognitoUser = userPool.getCurrentUser()
-    if (cognitoUser) {
-      cognitoUser.signOut()
-      localStorage.clear()
-      console.log('signed out')
-      props.setSignedIn(false)
-      props.setSignedInUserName("")
-    } else {
-      localStorage.clear()
-      console.log('no user signing in')
+    if (authState.isSignedIn) {
+      setSignOut(true)
     }
   }
 
@@ -60,12 +50,12 @@ const Header: React.FC<Props> = (props: Props) => {
             IApp
           </Typography>
           <Typography className={classes.userName}>
-            { props.signedInUserName }
+            {authState.signedInUsername}
           </Typography>
           <Button
             color="inherit"
-            onClick={() => {if (props.signedIn) {signOut()}}}>
-              {props.signedIn ? 'SIGN OUT' : 'SIGN IN'}
+            onClick={() => { if (authState.isSignedIn) { signOut() } }}>
+            {authState.isSignedIn ? 'SIGN OUT' : 'SIGN IN'}
           </Button>
         </Toolbar>
       </AppBar>

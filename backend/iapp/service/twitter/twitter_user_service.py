@@ -3,22 +3,19 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Union
 
-from ...db.rdb import db
-from ...repository.rdb import (
-    TwitterUserRepository,
-    TwitterFollowerRepository,
-    TwitterFolloweeRepository,
-)
-from ...schemas.twitter import (
-    TwitterUser as TwitterUserSchema,
-    TwitterUserInDB as TwitterUserInDBSchema,
-    TwitterFollower as TwitterFollowerSchema,
-    TwitterFollowee as TwitterFolloweeSchema,
-)
-from ...models.sqlalchemy.twitter import (
-    TwitterUser as TwitterUserModel,
-)
+from tweepy.error import TweepError
+
 from ...crawler import TwitterUserCrawler
+from ...db.rdb import db
+from ...models.sqlalchemy.twitter import TwitterUser as TwitterUserModel
+from ...repository.rdb import (TwitterFolloweeRepository,
+                               TwitterFollowerRepository,
+                               TwitterUserRepository)
+from ...schemas.twitter import TwitterFollowee as TwitterFolloweeSchema
+from ...schemas.twitter import TwitterFollower as TwitterFollowerSchema
+from ...schemas.twitter import TwitterUser as TwitterUserSchema
+from ...schemas.twitter import TwitterUserInDB as TwitterUserInDBSchema
+from ...utils.logger import Logger
 
 
 class BackendRepository(Enum):
@@ -81,7 +78,7 @@ class TwitterUserService(ITwitterUserService):
 
 class _TwitterUserServiceMySQL(ITwitterUserService):
 
-    DEFAULT_DB_RECORD_REFRESH_SECS = 60*60*24*3  # 3days
+    DEFAULT_DB_RECORD_REFRESH_SECS = 60 * 60 * 24 * 3  # 3days
 
     def __init__(self):
         self._tur = TwitterUserRepository()
@@ -95,7 +92,7 @@ class _TwitterUserServiceMySQL(ITwitterUserService):
             # Alredy exists in db, updating.
             updated = self._tur.update_by_filter(
                 self._db,
-                filter_condition=TwitterUserModel.id == data.id,
+                filter_conditions=TwitterUserModel.id == data.id,
                 update_data=data
             )
             print(f'updated record : {updated}')
@@ -107,18 +104,18 @@ class _TwitterUserServiceMySQL(ITwitterUserService):
     def get_user(self, id: int) -> Optional[TwitterUserInDBSchema]:
         user = self._tur.get_by_id(self._db, id)
         db_data = self._get_user_db_or_crawl(user, user_id_or_screen_name=id)
-        return TwitterUserInDBSchema.parse_obj(db_data.__dict__)
+        return TwitterUserInDBSchema.parse_obj(db_data.__dict__) if db_data else None
 
     def get_user_by_screen_name(self, screen_name: str) -> Optional[TwitterUserInDBSchema]:
         user = self._tur.get_by_screen_name(self._db, screen_name=screen_name)
         db_data = self._get_user_db_or_crawl(user, user_id_or_screen_name=screen_name)
-        return TwitterUserInDBSchema.parse_obj(db_data.__dict__)
+        return TwitterUserInDBSchema.parse_obj(db_data.__dict__) if db_data else None
 
     def _get_user_db_or_crawl(
         self,
         user: Optional[TwitterUserModel],
         user_id_or_screen_name: Union[int, str]
-    ) -> TwitterUserModel:
+    ) -> Optional[TwitterUserModel]:
         if user:
             # Alreay exists in db.
             print(f'twitter user [{user_id_or_screen_name}] already exists in db.')
@@ -126,7 +123,11 @@ class _TwitterUserServiceMySQL(ITwitterUserService):
             if elapsed_since_last_update > self.DB_RECORD_REFRESH_SECS:
                 # The record is old, re-crawling
                 print(f'{user_id_or_screen_name} : Over {self.DB_RECORD_REFRESH_SECS} secs past since last update, re-crawling')
-                user_data = self._user_crawler.run(user_id_or_screen_name=user_id_or_screen_name)
+                try:
+                    user_data = self._user_crawler.run(user_id_or_screen_name=user_id_or_screen_name)
+                except TweepError as e:
+                    Logger.e('_TwitterUserServiceMySQL', f'failed crawling for user {user_id_or_screen_name}. {e}')
+                    return None
                 tus = TwitterUserSchema.parse_obj(user_data._json)
                 updated = self._tur.update(
                     self._db,
@@ -141,7 +142,11 @@ class _TwitterUserServiceMySQL(ITwitterUserService):
         else:
             # The user does not exists in db, crawling.
             print(f'{user_id_or_screen_name} does not exists in db, crawling.')
-            user_data = self._user_crawler.run(user_id_or_screen_name=user_id_or_screen_name)
+            try:
+                user_data = self._user_crawler.run(user_id_or_screen_name=user_id_or_screen_name)
+            except TweepError as e:
+                Logger.e('_TwitterUserServiceMySQL', f'failed crawling for user {user_id_or_screen_name}. {e}')
+                return None
             tus = TwitterUserSchema.parse_obj(user_data._json)
             created_user = self._tur.create(self._db, data=tus)
             return created_user

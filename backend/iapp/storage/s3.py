@@ -3,10 +3,10 @@ from typing import List
 
 import botocore
 
-from .storage import Storage, StorageType
 from ..aws.resource import S3 as S3_resource
 from ..utils.config import AWSConfig
 from ..utils.logger import Logger
+from .storage import Storage, StorageType
 
 
 class S3(Storage):
@@ -52,6 +52,11 @@ class S3(Storage):
         basedir: str,
         marker: str = '',
     ) -> List[str]:
+        s3_prefix = f's3://{self._bucket_name}/'
+        basedir = basedir.replace(s3_prefix, '')
+        if basedir.startswith('/'):
+            basedir = basedir[1:]
+
         objs = self._bucket.meta.client.list_objects(
             Bucket=self._bucket.name,
             Prefix=basedir if basedir[-1] == '/' else basedir + '/',
@@ -67,7 +72,7 @@ class S3(Storage):
             s3_paths = [os.path.join(
                 s3_prefix,
                 file,
-            ) for file in files]
+            ) for file in files if not file.endswith('/')]
 
             s3_filelist += s3_paths
 
